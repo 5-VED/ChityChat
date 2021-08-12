@@ -37,31 +37,6 @@ class Rooms {
     }
   }
 
-  //Function to add member to the group/room
-  async addMember(req, res) {
-    //console.log("Fdd");
-
-    const newMember = await Room.updateOne(
-      {
-        _id: req.params.id,
-      },
-      {
-        members: req.body.members,
-      }
-    );
-    console.log(newMember.members);
-
-    if (!newMember || newMember == "undefined") {
-      console.log("FFF");
-      return ReE(res, "Group does not exist", 400);
-    } else {
-      let members = new Array();
-      members = members.push(newMember.members);
-      console.log(newMember.members);
-      ReS(res, "New Member Added Succesfully");
-    }
-  }
-
   //Function to get member to the group/room
   async getRoom(req, res) {
     const getRoom = await Room.findOne({
@@ -88,6 +63,30 @@ class Rooms {
       room
     ).then(ReS(res, "Room Deleted succesfully"));
   }
-}
 
+  //Function to add member to the group/room
+  async addMember(req, res) {
+    //console.log("Fdd");
+
+    const query = {
+      $addToSet: { members: req.body.members },
+    };
+
+    // console.log(query);}
+    let newMember = await Room.aggregate([
+      {
+        $project: {
+          members: {
+            $cond: {
+              if: { $in: [req.body.members, "$members"] },
+              then: "User Already Exist",
+              else: "false"
+            },
+          },
+        },
+      },
+    ]);
+    console.log(typeof(newMember));
+  }
+}
 module.exports = new Rooms();

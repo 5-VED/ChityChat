@@ -43,7 +43,7 @@ router.put("/updateUser/:id",authFxn,imageUpload.single("file"),imageValidate,va
 
 //router.post( "/conversation",authFxn,Conversation.conversationFilter,Conversation.chat); //Create a Conversarion
 router.post("/conversation",Conversation.conversationFilter,Conversation.chat); //Create a Conversarion
-router.put("/addMessage/:id", authFxn, Conversation.pushMessage); //Push new message
+router.put("/addMessage/:id", Conversation.pushMessage); //Push new message
 router.get("/getConveration/", Conversation.getConversation); //get Conversations from database
 
 /*----------------------------------------------Authencaion APIs---------------------------------------------------------------*/
