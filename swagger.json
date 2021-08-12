@@ -1,0 +1,467 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "ChityChat"
+  },
+  "title": "Users API Documentation",
+  "description": "Users Api in Swagger",
+  "liscense": {
+    "name": "MIT",
+    "url": "https://opensource.org/licenses/MIT"
+  },
+  "version": "1.0.0",
+  "host": "localhost:3001",
+  "schemes": ["http", "https"],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "basePath": "/api",
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Api Endpoints for Users"
+    }
+  ],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/signup": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Api Endpoint to Signup User",
+        "description": "Create New User",
+        "consumes": ["multipart/form-data"],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "formData",
+            "description": "Name of the User",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "Image of the User",
+            "required": true,
+            "type": "file"
+          },
+          {
+            "name": "email",
+            "in": "formData",
+            "description": "Email of the User",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "description": "Passwod of the User",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "New User Regiatered"
+          }
+        }
+      }
+    },
+    "/login": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Api Endpoint to Login User account",
+        "description": "Login a User",
+        "parameters": [
+          {
+            "name": "User",
+            "description": "Login Api to login a User",
+            "in": "body",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/UserLogin"
+            }
+          }
+        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "405": {
+            "description": "Invalid Credentials"
+          }
+        }
+      }
+    },
+    "/resetPassword": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Api Endpoint to reset User Password",
+        "description": "Reset password of User",
+        "parameters": [
+          {
+            "name": "User",
+            "description": " Api to send mail to a User",
+            "in": "body",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/ResetPassword"
+            }
+          }
+        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "405": {
+            "description": "Invalid Credentials"
+          }
+        }
+      }
+    },
+    "/newPassword/{userId}/{token}": {
+      "put": {
+        "tags": ["Users"],
+        "Summary": "Api Endpoint for new Password",
+        "description": "Reset password of User",
+        "parameters": [
+          {
+            "name": "userId",
+            "description": " Enter User id to get new Password",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "token",
+            "description": " Enter User id to get new Password",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Password",
+            "description": "Enter New Password",
+            "in": "body",
+            "type": "string",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/NewPasswordRE"
+            }
+          }
+        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Password updated Succesfully"
+          }
+        }
+      }
+    },
+    "/updateUser/{userId}": {
+      "put": {
+        "tags": ["Users"],
+        "summary": "Api Endpoint to update User account",
+        "description": "Update a User",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "ID of user that we want to find",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "in": "formData",
+            "required": false,
+            "description": "Name of the User",
+            "type": "string"
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "required": false,
+            "description": "Image of the User",
+            "type": "file"
+          },
+          {
+            "name": "email",
+            "in": "formData",
+            "required": false,
+            "description": "Email of the User",
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "required": false,
+            "description": "Passwod of the User",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User is updated"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/deleteUser/{userId}": {
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Api Endpoint to delete User account",
+        "description": "Delete a User",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "ID of user that we want to delete",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User removed from database"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/user": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Api Endpoint to get Users data",
+        "description": "Get all users ",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Done"
+          }
+        }
+      }
+    },
+    "/conversation": {
+      "post": {
+        "tags": [
+          {
+            "name": "Conversations"
+          }
+        ],
+        "summary": "Api Endpoint to create Conversation",
+        "description": "Create a Conversation",
+        "parameters": [
+          {
+            "name": "New Conversation",
+            "description": "An endpoint to insert new conversation document",
+            "in": "body",
+            "type": "string",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/Conversation"
+            }
+          }
+        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "New Conversation is Created"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/addMessage/{conversationId}": {
+      "put": {
+        "tags": [
+          {
+            "name": "Conversations"
+          }
+        ],
+        "summary": "Api Endpoint to push message in Conversation",
+        "description": "Recieve message from Sender",
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "name": "conversationId",
+            "description": "Enter Conversatiion Id",
+            "in": "path",
+            "type": "string",
+            "required": "true"
+          },
+          {
+            "name": "New Message",
+            "description": "Enter your Message",
+            "in": "body",
+            "type": "string",
+            "required": "true",
+            "schema": {
+              "$ref": "#/definitions/AddMessageRE"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "New Message Recieved"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/getConveration": {
+      "get": {
+        "tags": [
+          {
+            "name": "Conversations"
+          }
+        ],
+        "summary": "Api Endpoint to get Conversations",
+        "description": "Get all Conversation Documents from database ",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "Done"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "JWT": {
+      "description": "",
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "User": {
+      "required": ["name", "image", "email", "password"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "image": {
+          "type": "file"
+        },
+        "email": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "UserLogin": {
+      "required": ["email", "password"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "ResetPassword": {
+      "required": ["email"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "uniqueItems": true
+        }
+      }
+    },
+    "NewPasswordRE": {
+      "requires": ["password"],
+      "properties": {
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "UserUpdateRE": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "image": {
+          "type": "file"
+        },
+        "email": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "LoginRE": {
+      "properties": {
+        "success": {
+          "type": "boolean"
+        }
+      }
+    },
+    "Conversation": {
+      "require": ["Sender", "Reciever", "Gid", "messages"],
+      "properties": {
+        "Sender": {
+          "type": "string"
+        },
+        "Reciever": {
+          "type": "string"
+        },
+        "Gid": {
+          "type": "string"
+        },
+        "messages": {
+          "type": "string"
+        }
+      }
+    },
+    "AddMessageRE": {
+      "require": ["sender"],
+      "properties": {
+        "messages": {
+          "properties": {
+            "Sender": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+"parameters": [
+  {
+    "name": "User Name ",
+    "description": "User parameter to create User",
+    "in": "formdata",
+    "type": "string",
+    "required": "true",
+    "schema": {
+      "$ref": "#/definitions/User"
+    }
+  },
+  {
+    "name": "User Image",
+    "description": "User parameter to upload user image",
+    "in": "formdata",
+    "type": "file",
+    "required": "true",
+    "schema": {
+      "$ref": "#/definitions/User"
+    }
+  },
+  {
+    "name": "User Email ",
+    "description": "User parameter to create user email",
+    "in": "formdata",
+    "type": "string",
+    "required": "true",
+    "schema": {
+      "$ref": "#/definitions/User"
+    }
+  },
+  {
+    "name": "User Password ",
+    "description": "User parameter to create user password ",
+    "in": "formdata",
+    "type": "string",
+    "required": "true",
+    "schema": {
+      "$ref": "#/definitions/User"
+    }
+  }
+],
+
+
+
+"definitions": {
+  "SignupRE": {
+    "properties": {
+      "success": {
+        "type": "boolean"
+      }
+    }
+  },
+
+  {
+    "name": "User Image",
+    "in": "formData",
+    "description": "Image of the User",
+    "required": true,
+    "type": "file"
+  },
+
+  "NewPassword": {
+    "required": [
+      "password"
+    ],
+    "properties": {
+      "name": {
+        "type": "string"
+      }
+    }
+  },
