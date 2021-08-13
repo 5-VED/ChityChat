@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 class conversation {
   //Method to create new Conversation
-  async chat(req, res,next) {
+  async chat(req, res, next) {
     const conversation = await new Conversation({
       //_id: new mongoose.Types.ObjectId(),
       //members: req.body.members,
@@ -79,7 +79,7 @@ class conversation {
         },
       },
     ]);
-//    console.log(conversation)
+    //    console.log(conversation)
 
     if (conversation <= 1) {
       next();
@@ -89,7 +89,7 @@ class conversation {
   }
 
   //API to get Conversations
-  async getConversation(req,res,next) {
+  async getConversation(req, res, next) {
     const conversation = await Conversation.find({});
 
     if (conversation) {

@@ -2,11 +2,13 @@ const User = require("../Models/Users"),
   Strategy = require("passport-jwt").Strategy,
   ExtractJwt = require("passport-jwt").ExtractJwt;
 const passport = require("passport");
+const FacebookStrategy = require("passport-facebook").Strategy;
 const dotenv = require("dotenv");
-const GoogleStrategy = require("passport-google-oauth20");
 dotenv.config();
 
-passport.initialize();
+
+
+
 
 module.exports = function (passport) {
   var opts = {
@@ -14,10 +16,10 @@ module.exports = function (passport) {
     secretOrKey: process.env.TOKEN_SECRET,
   };
 
-  //console.log('Obviously control comes here');
+  console.log("Obviously control comes here");
   passport.use(
     new Strategy(opts, function (jwt_payload, done) {
-      //console.log('Obviously control comes here');
+      console.log("Obviously control comes here");
       User.findOne({ _id: jwt_payload.id }, function (err, user) {
         if (err) {
           return done(err, false);
@@ -31,20 +33,23 @@ module.exports = function (passport) {
     })
   );
 
-  //   passport.use(
-  //     new GoogleStrategy({
-  //       //options for google start
-  //     }),()=>{
-  //       //passport callback funcion
-  //     }
-  //   )
+  passport.use(new FacebookStrategy({
 
-  //   return passport.initialize();
-  // };
-};
+    clientID: process.env.FACEBOOK_CLIENT_ID,
+    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+    callbackURL:"http://localhost:3001/facebook/callback",
+    profileFields: ["name", "picture.type(large)", "email"],
+
+  },//facebook will send back the token and profile));
+  function(token,refreshToken , profile ,done) {
+    console.log(token,refreshToken , profile )
+    const user={}
+    return done(null, user);
+  }))
+}
 
 const authFxn = function (req, res, next) {
-  passport.authenticate("jwt", function (err, user, info) {
+  passport.authenticate(["jwt","facebook"], function (err, user, info) {
     if (err) {
       res.json(err);
     }

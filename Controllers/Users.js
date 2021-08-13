@@ -91,19 +91,6 @@ class Users {
     }
   }
 
-  //Filter to check user exist or not
-  // async newMemberFilter(req, res,next) {
-  //   const user = await User.find({
-  //     _id:req.params.id
-  //   });
-  //   if (user) {
-  //     console.log(user);
-  //     ReS(res, user);
-  //   } else {
-  //     return ReE(res, "User doesnt exist please create Signup", 400);
-  //   }
-  // }
-
   //Function to delete a user
   async deleteUser(req, res) {
     const user = await User.findOne({ _id: req.params.id });

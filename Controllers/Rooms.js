@@ -14,6 +14,7 @@ class Rooms {
       members: req.body.members,
     });
 
+    console.log(room);
     try {
       if (room.members.length == 0 || room.members == " ") {
         console.log(room);
@@ -66,27 +67,56 @@ class Rooms {
 
   //Function to add member to the group/room
   async addMember(req, res) {
-    //console.log("Fdd");
+    //console.log("Fdd")
 
-    const query = {
-      $addToSet: { members: req.body.members },
-    };
+    const { _id } = req.body;
+    User.findOne({ _id }, async (error, user) => {
+      //console.log(_id);
+      if (error || !user) {
+        //console.log(user)
+        return ReS(res, "User with this account does not exist");
+      }
+      let id = user._id.toString(); // initializing an id of the existing user
+      //console.log(typeof(id))
 
-    // console.log(query);}
-    let newMember = await Room.aggregate([
+      let newMember = await Room.findOne({ _id: req.params.id });
+
+      if (!newMember) {
+        console.log(newMember);
+        return ReS(res, "sfsfs");
+      }
+
+      let arr = newMember.members; // initializing an array of a collection document
+
+      console.log(arr[arr.length - 1]);
+      console.log(id);
+      if (arr[arr.length - 1] == id) {
+        return ReE(res, "User Already there ", 400);
+      }
+
+      arr = arr.push(id); //Inserting a new user id in the collection
+
+      await newMember.save();
+      ReS(res, "Member Added Succesfully");
+    });
+  }
+
+  //Function to remove member from group
+  async removeMember(req, res) {
+    const member = await Room.findOneAndUpdate(
       {
-        $project: {
-          members: {
-            $cond: {
-              if: { $in: [req.body.members, "$members"] },
-              then: "User Already Exist",
-              else: "false"
-            },
-          },
-        },
+        _id: req.params.id,
       },
-    ]);
-    console.log(typeof(newMember));
+      {
+        $pull: { members: req.body.members },
+      }
+    );
+
+    if (!member) {
+      console.log(member);
+      return ReE(res, "No such Chat Room Exist", 400);
+    }
+    await ReS(res,"User Removed Succesfully",400)
   }
 }
 module.exports = new Rooms();
