@@ -3,7 +3,7 @@ const router = express.Router();
 const Room = require("../Controllers/Rooms");
 const User = require("../Controllers/Users");
 const Conversation = require("../Controllers/Conversation");
-const {validate,passwordValidate,imageValidate} = require("../utils/validation");
+const {validate,passwordValidate,imageValidate,} = require("../utils/validation");
 const { authFxn } = require("../config/passport");
 const multer = require("multer");
 const passport = require("passport");
@@ -28,6 +28,8 @@ const imageUpload = multer({
   },
 });
 
+
+
 /*----------------------------------------------Users APIs---------------------------------------------------------------*/
 
 router.post("/signup",authFxn,imageUpload.single("file"),imageValidate,validate,User.createUser); //Create a User and signup
@@ -44,22 +46,20 @@ router.get("/getConveration/", Conversation.getConversation); //get Conversation
 
 /*----------------------------------------------Authencaion APIs---------------------------------------------------------------*/
 
-router.post("/login", User.login); // User Login
+router.post("/login",authFxn,User.login); // User Login
 router.post("/resetPassword", PasswordReset.resetPassword); // Sends the password Reset Link to the Client
-router.put("/newPassword/:userId/:token",passwordValidate,PasswordReset.newPassword
-); // verify the Link and reset the password
+router.put("/newPassword/:userId/:token",passwordValidate,PasswordReset.newPassword); // verify the Link and reset the password
 
-/*----------------------------------------------Rooms APIs---------------------------------------------------------------*/
+/*----------------------------------------------Rooms APIs----------------------------------------------------------------------*/
 
 router.post("/newRoom", Room.newRoom); //Api to create chat room;
 router.get("/getRoom/:id", Room.getRoom); //Api to get all the rooms ;
 router.put("/addMember/:id", Room.addMember); //Api to add new member in room ;
 router.put("/removeMember/:id", Room.removeMember); //Api to add new member in room ;
-router.delete("/deleteRoom/:id", Room.deleteRoom);//Api to remove member from room ;
+router.delete("/deleteRoom/:id", Room.deleteRoom); //Api to remove member from room ;
 
-/*----------------------------------------------Social Authencation APIs---------------------------------------------------------------*/
+/*----------------------------------------------Social Authencation APIs--------------------------------------------------------*/
 
-
-
+router.get("/fbLogin",)
 
 module.exports = router;

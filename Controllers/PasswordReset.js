@@ -5,7 +5,6 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const doetnv = require("dotenv");
-//const async = require("async");
 doetnv.config();
 
 class ResetPassword {

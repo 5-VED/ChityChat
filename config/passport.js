@@ -3,12 +3,9 @@ const User = require("../Models/Users"),
   ExtractJwt = require("passport-jwt").ExtractJwt;
 const passport = require("passport");
 const FacebookStrategy = require("passport-facebook").Strategy;
+const { FACEBOOK_CONFIG } = require("../config/config");
 const dotenv = require("dotenv");
 dotenv.config();
-
-
-
-
 
 module.exports = function (passport) {
   var opts = {
@@ -16,10 +13,10 @@ module.exports = function (passport) {
     secretOrKey: process.env.TOKEN_SECRET,
   };
 
-  console.log("Obviously control comes here");
+  //console.log("Obviously control comes here");
   passport.use(
     new Strategy(opts, function (jwt_payload, done) {
-      console.log("Obviously control comes here");
+      //console.log("Obviously control comes here");
       User.findOne({ _id: jwt_payload.id }, function (err, user) {
         if (err) {
           return done(err, false);
@@ -33,23 +30,31 @@ module.exports = function (passport) {
     })
   );
 
-  passport.use(new FacebookStrategy({
+  passport.serializeUser(function (user, cb) {
+    cb(null, user);
+  });
 
-    clientID: process.env.FACEBOOK_CLIENT_ID,
-    clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-    callbackURL:"http://localhost:3001/facebook/callback",
-    profileFields: ["name", "picture.type(large)", "email"],
+  passport.deserializeUser(function (obj, cb) {
+    cb(null, obj);
+  });
 
-  },//facebook will send back the token and profile));
-  function(token,refreshToken , profile ,done) {
-    console.log(token,refreshToken , profile )
-    const user={}
-    return done(null, user);
-  }))
-}
+  console.log("Obviously control comes here3");
+  passport.use(
+    new FacebookStrategy(
+      FACEBOOK_CONFIG,
+      //facebook will send back the token and profile));
+      function (token, refreshToken, profile, done) {
+        console.log("Obviously control comes here5");
+        console.log(token, refreshToken, profile);
+        const user = {};
+        return done(null, user);
+      }
+    )
+  );
+};
 
 const authFxn = function (req, res, next) {
-  passport.authenticate(["jwt","facebook"], function (err, user, info) {
+  passport.authenticate(["jwt", "facebook"], function (err, user, info) {
     if (err) {
       res.json(err);
     }
@@ -61,4 +66,11 @@ const authFxn = function (req, res, next) {
     return next();
   })(req, res, next);
 };
+
 module.exports.authFxn = authFxn;
+
+const successLogin = function (req, res, next) {
+  res.send("logged in to facebook");
+};
+
+module.exports.successLogin = successLogin;

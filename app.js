@@ -1,7 +1,7 @@
 const express = require("express");
 const router = require("./routes/web.route");
 const cors = require("cors");
-require("./config/db_connection");
+require("./db/mongoose.js");
 
 
 const swaggerUi = require("swagger-ui-express");
