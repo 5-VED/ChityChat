@@ -3,8 +3,12 @@ const router = express.Router();
 const Room = require("../Controllers/Rooms");
 const User = require("../Controllers/Users");
 const Conversation = require("../Controllers/Conversation");
-const {validate,passwordValidate,imageValidate,} = require("../utils/validation");
-const { authFxn } = require("../config/passport");
+const {
+  validate,
+  passwordValidate,
+  imageValidate,
+} = require("../utils/validation");
+const { authFxn, facebookLogin } = require("../config/passport");
 const multer = require("multer");
 const passport = require("passport");
 const PasswordReset = require("../Controllers/PasswordReset");
@@ -28,27 +32,47 @@ const imageUpload = multer({
   },
 });
 
-
-
 /*----------------------------------------------Users APIs---------------------------------------------------------------*/
 
-router.post("/signup",authFxn,imageUpload.single("file"),imageValidate,validate,User.createUser); //Create a User and signup
+router.post(
+  "/signup",
+  authFxn,
+  imageUpload.single("file"),
+  imageValidate,
+  validate,
+  User.createUser
+); //Create a User and signup
 router.get("/user", User.getUser); //to get all users
 router.delete("/deleteUser/:id", User.deleteUser); //to delete User
-router.put("/updateUser/:id",authFxn,imageUpload.single("file"),imageValidate,validate,User.updateUser); //to update User
+router.put(
+  "/updateUser/:id",
+  authFxn,
+  imageUpload.single("file"),
+  imageValidate,
+  validate,
+  User.updateUser
+); //to update User
 
 /*----------------------------------------------Conversation APIs---------------------------------------------------------------*/
 
 //router.post( "/conversation",authFxn,Conversation.conversationFilter,Conversation.chat); //Create a Conversarion
-router.post("/conversation",Conversation.conversationFilter,Conversation.chat); //Create a Conversarion
+router.post(
+  "/conversation",
+  Conversation.conversationFilter,
+  Conversation.chat
+); //Create a Conversarion
 router.put("/addMessage/:id", Conversation.pushMessage); //Push new message
 router.get("/getConveration/", Conversation.getConversation); //get Conversations from database
 
 /*----------------------------------------------Authencaion APIs---------------------------------------------------------------*/
 
-router.post("/login",authFxn,User.login); // User Login
+router.post("/login", authFxn, User.login); // User Login
 router.post("/resetPassword", PasswordReset.resetPassword); // Sends the password Reset Link to the Client
-router.put("/newPassword/:userId/:token",passwordValidate,PasswordReset.newPassword); // verify the Link and reset the password
+router.put(
+  "/newPassword/:userId/:token",
+  passwordValidate,
+  PasswordReset.newPassword
+); // verify the Link and reset the password
 
 /*----------------------------------------------Rooms APIs----------------------------------------------------------------------*/
 
@@ -59,7 +83,35 @@ router.put("/removeMember/:id", Room.removeMember); //Api to add new member in r
 router.delete("/deleteRoom/:id", Room.deleteRoom); //Api to remove member from room ;
 
 /*----------------------------------------------Social Authencation APIs--------------------------------------------------------*/
+// const stucked = ()=>{
+//   console.log("stucked");
+// }
 
-router.get("/fbLogin",)
+//facebookLogin();
+
+router.get("/auth/facebook", passport.authenticate("facebook"));
+
+router.get(
+  "/auth/facebook/callback",
+  passport.authenticate("facebook", {
+    failureRedirect: "/fail",
+    function(req, res, next) {
+      console.log(req.user, req.isAuthenticated());
+      console.log("User is Authenticated");
+      res.send("logged in to Facebook");
+    },
+    })
+);
+
+router.get("/", (req, res) => {
+  console.log("you are authenticated");
+});
+
+router.get("/fail", (req, res, next) => {
+  console.log("Cant get the callback");
+  res.send("failed");
+});
+
+
 
 module.exports = router;

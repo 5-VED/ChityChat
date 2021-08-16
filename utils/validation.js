@@ -1,7 +1,6 @@
 const { check, validationResult } = require("express-validator");
-const { ReE, ReS } = require("../utils/responseService");
+const { ReE } = require("../utils/responseService");
 const accepted_extensions = [".jpg", ".png", ".jpeg"];
-const mime = ["image/jpg", "image/png", "image/jpeg"];
 const path = require("path");
 
 //Functin to validate users input
