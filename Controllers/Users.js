@@ -3,8 +3,6 @@ const { ReS, ReE } = require("../utils/responseService");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const validate = require("../utils/validation");
-const { conversationFilter } = require("./Conversation");
 dotenv.config();
 
 class Users {
@@ -22,6 +20,7 @@ class Users {
       email: req.body.email,
       password: hashedpassword,
     });
+
     try {
       const savedUser = await user.save();
       console.log(savedUser);

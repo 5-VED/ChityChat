@@ -19,6 +19,8 @@ const convSchema = new Schema({
     type: Array,
     required: true,
   },
+},{
+  timestamps:true
 });
 
 const conversation = new mongoose.model("conversation", convSchema);

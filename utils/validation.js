@@ -73,7 +73,7 @@ exports.passwordValidate = [
 ];
 
 //Method to validate image file
-module.exports.imageValidate = (req, res, next) => {
+module.exports.fileValidate = (req, res, next) => {
   console.log("in image validate file");
   const extension = path.extname(req.file.originalname);
   for (i = 0; i < 3; i++) {
