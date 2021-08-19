@@ -38,20 +38,6 @@ class Rooms {
     }
   }
 
-  //Function to get member to the group/room
-  async getRoom(req, res) {
-    const getRoom = await Room.findOne({
-      _id: req.params.id,
-    });
-
-    if (!getRoom) {
-      ReE(res, "Group does not exist", 400);
-    } else {
-      //console.log(getRoom); //[]
-      ReS(res, getRoom);
-    }
-  }
-
   //Fuction to delet room from collection
   async deleteRoom(req, res) {
     const room = await Room.findOne({ _id: req.params.id });
@@ -101,6 +87,20 @@ class Rooms {
     });
   }
 
+  //Function to get member to the group/room
+  async getRoom(req, res) {
+    const getRoom = await Room.findOne({
+      _id: req.params.id,
+    });
+
+    if (!getRoom) {
+      ReE(res, "Group does not exist", 400);
+    } else {
+      //console.log(getRoom); //[]
+      ReS(res, getRoom);
+    }
+  }
+
   //Function to remove member from group
   async removeMember(req, res) {
     const member = await Room.findOneAndUpdate(
@@ -116,7 +116,7 @@ class Rooms {
       console.log(member);
       return ReE(res, "No such Chat Room Exist", 400);
     }
-    await ReS(res,"User Removed Succesfully",400)
+    await ReS(res, "User Removed Succesfully", 400);
   }
 }
 module.exports = new Rooms();

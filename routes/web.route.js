@@ -4,7 +4,7 @@ const Room = require("../Controllers/Rooms");
 const User = require("../Controllers/Users");
 const Conversation = require("../Controllers/Conversation");
 const {  validate,passwordValidate, fileValidate,} = require("../utils/validation");
-const { authFxn, facebookLogin } = require("../config/passport");
+const { authFxn} = require("../config/passport");
 const multer = require("multer");
 const passport = require("passport");
 const PasswordReset = require("../Controllers/PasswordReset");
@@ -42,7 +42,8 @@ router.post("/conversation",Conversation.conversationFilter,Conversation.chat); 
 router.put("/addMessage/:id", Conversation.pushMessage); //Push new message
 router.get("/getConveration/", Conversation.getConversation); //get Conversations from database
 router.put('/clearChat/:id',Conversation.clearChat); //Api end point to clear conversation
-router.post('/notification/:id',Conversation.notification);
+router.get('/notification/:id',Conversation.notification); //Api End Point to send notifications
+router.get('/getSpecificConversation/:id',Conversation.getSpecificConversation); //Api End Point to get particular chat
 
 /*----------------------------------------------Authencaion APIs---------------------------------------------------------------*/
 

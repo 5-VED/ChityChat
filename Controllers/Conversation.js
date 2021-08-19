@@ -1,8 +1,6 @@
 const Conversation = require("../Models/Conversation");
-const Notification = require("../Models/Notification");
+const Room = require("../Models/Rooms");
 const { ReS, ReE } = require("../utils/responseService");
-const moment = require("moment");
-//let sender, reciever;
 
 class conversation {
   //Method to create new Conversation
@@ -33,40 +31,22 @@ class conversation {
       });
   }
 
-  // //Api to push new messages
-  // async pushMessage(req, res) {
-  //   Conversation.findOneAndUpdate(
-  //     { _id: req.params.id },
-  //     {
-  //       $push: {
-  //         messages: req.body.messages,
-  //       },
-  //     }
-  //   )
-  //     .then((messages) => {
-  //       messages = req.body.messages;
-  //       console.log(messages);
-  //       res.status(201).json({ message: messages });
-  //       console.log(req.body.messages, "req.body");
-  //       console.log(result, "result");
-  //     })
-  //     .catch((error) => {
-  //       res.status(500).json(error);
-  //       console.log(error);
-  //     });
-  // }
-
+  //Api to push new messages
   async pushMessage(req, res) {
-    const newMessages = await Conversation.findOne({
-      _id: req.params.id,
-    });
-    console.log("it will come here")
-    if (!newMessages) {
-      return ReE(res, "No such Conversation Exist", 400);
-    }
-    let mewMsg = newMessages.messages;
-    console.log(req.body.messages._id)
-    console.log(newMessages);
+    Conversation.findOneAndUpdate(
+      { _id: req.params.id },
+      {
+        $push: {
+          messages: req.body.messages,
+        },
+      },
+      function (err, conversation) {
+        if (err) {
+          ReE(res, "No such conversaiton exist", 400);
+        }
+      }
+    );
+    await ReS(res, "Message Inserted Succesully");
   }
 
   //Filter to prevent duplicate entries
@@ -113,6 +93,19 @@ class conversation {
     next();
   }
 
+  //Api to get Specific Conversation
+  async getSpecificConversation(req, res) {
+    const conversation = await Conversation.findOne({ _id: req.params.id });
+    //console.log(conversation);
+    if (conversation) {
+      let arr = conversation.messages;
+      let msg = arr[arr.length - 1].message;
+      res.status(201).json(msg);
+    } else {
+      return ReE(res, "No Such Conversation Exist", 400);
+    }
+  }
+
   //Api endpoint to clear chat
   async clearChat(req, res) {
     // console.log("he");
@@ -135,17 +128,20 @@ class conversation {
     if (!conversation) {
       return ReE(res, "No such Conversation Exist", 400);
     }
+
     let arr = conversation.messages;
-    let reciever = conversation.reciever_id;
-    console.log(reciever);
-    //let id = Object.keys(arr.reciever);
+    let recieverId = conversation.reciever_id;
+    console.log(recieverId);
     let count = 0;
     for (let i = 0; i < arr.length; i++) {
-      if (arr[i]._id === reciever) {
+      if (arr[i]._id === recieverId && arr[i].isRead === false) {
         count = count + 1;
+        arr[i].isRead = true;
       }
     }
-    // let num =
+    console.log(count);
+    await conversation.save();
+    ReS(res, `You Have ${count} notifications`, 200);
   }
 }
 
