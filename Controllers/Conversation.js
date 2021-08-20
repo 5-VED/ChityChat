@@ -1,5 +1,6 @@
 const Conversation = require("../Models/Conversation");
 const Room = require("../Models/Rooms");
+const User = require("../Models/Users");
 const { ReS, ReE } = require("../utils/responseService");
 
 class conversation {
@@ -33,20 +34,38 @@ class conversation {
 
   //Api to push new messages
   async pushMessage(req, res) {
-    Conversation.findOneAndUpdate(
-      { _id: req.params.id },
-      {
-        $push: {
-          messages: req.body.messages,
-        },
-      },
-      function (err, conversation) {
-        if (err) {
-          ReE(res, "No such conversaiton exist", 400);
+    const conversaton = await Conversation.findOne({ _id: req.params.id });
+    console.log(conversaton);
+    if (conversaton.group_id !== null) {
+      const roomId = conversaton.group_id;
+
+      const room = await Room.findOne({ _id: roomId }, async (error, room) => {
+        if (!room || error) {
+          return ReE(res, "No such Room Exist", 400);
         }
+      });
+
+      const id = req.body.messages._id;
+      const message = req.body.messages.message;
+      console.log(message);
+      const arr = conversaton.messages;
+
+      const pushFxn = function () {
+        let newMessage = {
+          _id: id,
+          message: message,
+        };
+        arr.push(newMessage);
+      };
+
+      if (room.members.includes(id)) {
+        console.log(id);
+        pushFxn();
+        conversaton.save();
+        return ReS(res, "Message Send");
       }
-    );
-    await ReS(res, "Message Inserted Succesully");
+      return ReE(res, "Wrong Group", 400);
+    }
   }
 
   //Filter to prevent duplicate entries
@@ -115,7 +134,7 @@ class conversation {
     while (arr.length > 0) {
       arr.pop();
     }
-    if (!arr.length == 0) {
+    if (!arr.length === 0) {
       return ReE(res, "Chat cant be cleared please try again later", 400);
     }
     await conversation.save();
