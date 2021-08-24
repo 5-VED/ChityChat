@@ -10,6 +10,7 @@
   "author": "Ved",
   "license": "ISC",
   "dependencies": {
+    "acl": "^0.4.11",
     "bcrypt": "^5.0.1",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",

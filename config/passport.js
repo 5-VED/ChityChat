@@ -30,7 +30,7 @@ module.exports = function (passport) {
 
 const authFxn = function (req, res, next) {
   console.log("Cant move ahead");
-  passport.authenticate("jwt", function (err, user, info) {
+  passport.authenticate("jwt", { session: false }, function (err, user, info) {
     if (err) {
       console.log(err);
       res.json(err);
@@ -45,5 +45,3 @@ const authFxn = function (req, res, next) {
 };
 
 module.exports.authFxn = authFxn;
-
-

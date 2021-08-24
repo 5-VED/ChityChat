@@ -7,8 +7,6 @@ class conversation {
   //Method to create new Conversation
   async chat(req, res, next) {
     const conversation = await new Conversation({
-      //_id: new mongoose.Types.ObjectId(),
-      //members: req.body.members,
       sender_id: req.body.sender_id,
       reciever_id: req.body.reciever_id,
       group_id: req.body.group_id,
@@ -19,10 +17,6 @@ class conversation {
       .then((result) => {
         console.log(conversation);
         ReS(res, result);
-        next();
-        //res.status(201).json(result);
-        //console.log(req.body.messages);
-        //console.log(result, "result");
       })
       .catch((error) => {
         console.log(error);
@@ -47,7 +41,6 @@ class conversation {
 
       const id = req.body.messages._id;
       const message = req.body.messages.message;
-      console.log(message);
       const arr = conversaton.messages;
 
       const pushFxn = function () {
@@ -91,7 +84,6 @@ class conversation {
         },
       },
     ]);
-    //    console.log(conversation)
 
     if (conversation <= 1) {
       next();

@@ -7,28 +7,31 @@ class Rooms {
   //Function to create a new room
   async newRoom(req, res) {
     const salt = await bcrypt.genSalt(10);
-    let hashedpassword = await bcrypt.hash(req.body.password, salt);
+    const hashedpassword = await bcrypt.hash(req.body.password, salt);
+
+    const admin = await User.findOne({ _id: req.params.id });
+    if (!admin) {
+      //console.log("Cant find ");
+      return ReE(res, "Can't Create Group", 400);
+    }
+    //console.log(admin._id);
 
     const room = await new Room({
+      name: req.body.name,
+      admin: admin._id,
+      image: req.file.path,
       password: hashedpassword,
       members: req.body.members,
     });
 
+    // const user = await User.findOne({_id:room._id})
+    // console.log(user.id);
+
     console.log(room);
     try {
-      if (room.members.length == 0 || room.members == " ") {
+      if (room.members.length === 0 || room.members == " ") {
         console.log(room);
         return ReE(res, "Can't create a room Plese try Again ", 400);
-      }
-
-      //Filter to prevent duplicate entries in the group/room
-      for (let i = 0; i < room.members.length; i++) {
-        let temp = room.members[i];
-        for (let j = i + 1; j < room.members.length - 1; j++) {
-          if (temp == room.members[j]) {
-            return ReE(res, "Invalid id please try again", 400);
-          }
-        }
       }
 
       await room.save();
@@ -87,7 +90,29 @@ class Rooms {
     });
   }
 
-  //Function to get member to the group/room
+  /*---------------------------------------Function to update group/room-------------------------------------------*/
+  async updateRoom(req, res) {
+    const salt = await bcrypt.genSalt(10);
+    const hashedpassword = await bcrypt.hash(req.body.password, salt);
+    const room = await new Room({
+      _id: req.params.id,
+      name: req.body.name,
+      image: req.file.path,
+      password: hashedpassword,
+      members: req.body.members,
+    });
+    console.log(room);
+    Room.updateOne(
+      {
+        _id: req.params.id,
+      },
+      room
+    )
+      .then(ReS(res, "Record Updated Succesfully"))
+      .catch(ReE(res, "Please try again Later", 400));
+  }
+
+  /*---------------------------------------Function to get member to the group/room---------------------------------*/
   async getRoom(req, res) {
     const getRoom = await Room.findOne({
       _id: req.params.id,

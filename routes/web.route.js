@@ -30,7 +30,7 @@ const fileUpload = multer({
 
 /*----------------------------------------------Users APIs---------------------------------------------------------------*/
 
-router.post(  "/signup",authFxn,fileUpload.single("file"),fileValidate,validate,User.createUser); //Create a User and signup
+router.post("/signup",fileUpload.single("file"),fileValidate,validate,User.createUser); //Create a User and signup
 router.get("/user", User.getUser); //to get all users
 router.delete("/deleteUser/:id", User.deleteUser); //to delete User
 router.put( "/updateUser/:id",authFxn,fileUpload.single("file"),fileValidate,validate,User.updateUser); //to update User
@@ -47,18 +47,19 @@ router.get('/getSpecificConversation/:id',Conversation.getSpecificConversation);
 
 /*----------------------------------------------Authencaion APIs---------------------------------------------------------------*/
 
-router.post("/login", authFxn, User.login); // User Login
+router.post("/login", User.login); // User Login
 router.post("/resetPassword", PasswordReset.resetPassword); // Sends the password Reset Link to the Client
 router.put("/newPassword/:userId/:token",passwordValidate, PasswordReset.newPassword); // verify the Link and reset the password
+router.post("/resetRoomPassword", PasswordReset.resetRoomPassword); // Sends the password Reset Link to the group Admin
 
 /*----------------------------------------------Rooms APIs----------------------------------------------------------------------*/
 
-router.post("/newRoom", Room.newRoom); //Api to create chat room;
+router.post("/newRoom/:id",fileUpload.single("file"),fileValidate, Room.newRoom); //Api to create chat room;
 router.get("/getRoom/:id", Room.getRoom); //Api to get all the rooms ;
 router.put("/addMember/:id", Room.addMember); //Api to add new member in room ;
 router.put("/removeMember/:id", Room.removeMember); //Api to add new member in room ;
 router.delete("/deleteRoom/:id", Room.deleteRoom); //Api to remove member from room ;
-
+router.put('/updateRoom/:id',fileUpload.single("file"),fileValidate,Room.updateRoom); //Api to Update Room
 
 
 module.exports = router;

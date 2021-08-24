@@ -2,13 +2,26 @@ const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
   {
+    name: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    admin:{
+      type:String,
+      required:true
+    },
+    image: {
+      type: String,
+      required: false,
+    },
     password: {
       type: String,
       required: true,
-      default:null
+      default: null,
     },
     members: {
-      type:Array,
+      type: Array,
       required: true,
     },
   },
@@ -17,4 +30,3 @@ const schema = new mongoose.Schema(
 
 const Rooms = new mongoose.model("rooms", schema);
 module.exports = Rooms;
-
