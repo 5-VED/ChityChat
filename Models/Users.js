@@ -11,6 +11,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    bio: {
+      type: String,
+      trim: true,
+      required: false,
+    },
     email: {
       type: String,
       trim: true,
@@ -20,8 +25,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
       required: false,
-      default:null
-    }
+      default: null,
+    },
   },
   { timestamps: true }
 );

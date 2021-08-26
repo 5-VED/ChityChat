@@ -6,7 +6,7 @@ const convSchema = new Schema(
     sender_id: {
       type: String,
       required: false,
-      default: null
+      default: null,
     },
     reciever_id: {
       type: String,
@@ -16,6 +16,11 @@ const convSchema = new Schema(
       type: String,
       required: false,
       default: null,
+    },
+    isArchived: {
+      type: Boolean,
+      default: false,
+      required: true,
     },
     messages: [
       {

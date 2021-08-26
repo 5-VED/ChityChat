@@ -2,6 +2,7 @@ const Room = require("../Models/Rooms");
 const { ReE, ReS } = require("../utils/responseService");
 const bcrypt = require("bcrypt");
 const User = require("../Models/Users");
+const acl = require("../config/acl");
 
 class Rooms {
   //Function to create a new room
@@ -33,7 +34,6 @@ class Rooms {
         console.log(room);
         return ReE(res, "Can't create a room Plese try Again ", 400);
       }
-
       await room.save();
       ReS(res, "New Group created");
     } catch (error) {
@@ -46,6 +46,7 @@ class Rooms {
     const room = await Room.findOne({ _id: req.params.id });
 
     if (!room) return ReE(res, "Record doesnt exist", 400);
+
     Room.deleteOne(
       {
         _id: req.params.id,

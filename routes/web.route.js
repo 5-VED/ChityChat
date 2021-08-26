@@ -40,10 +40,13 @@ router.put( "/updateUser/:id",authFxn,fileUpload.single("file"),fileValidate,val
 //router.post( "/conversation",authFxn,Conversation.conversationFilter,Conversation.chat); //Create a Conversarion
 router.post("/conversation",Conversation.conversationFilter,Conversation.chat); //Create a Conversarion
 router.put("/addMessage/:id", Conversation.pushMessage); //Push new message
+router.put("/deleteMessages/:id", Conversation.deleteMessages); //Push new message
 router.get("/getConveration/", Conversation.getConversation); //get Conversations from database
 router.put('/clearChat/:id',Conversation.clearChat); //Api end point to clear conversation
 router.get('/notification/:id',Conversation.notification); //Api End Point to send notifications
 router.get('/getSpecificConversation/:id',Conversation.getSpecificConversation); //Api End Point to get particular chat
+router.put('/archivedConversations/:id',Conversation.archivedConversations); //Api end point to archive conversation
+router.put('/broadcast',Conversation.broadcast); //Api end point to clear conversation
 
 /*----------------------------------------------Authencaion APIs---------------------------------------------------------------*/
 
@@ -58,7 +61,7 @@ router.post("/newRoom/:id",fileUpload.single("file"),fileValidate, Room.newRoom)
 router.get("/getRoom/:id", Room.getRoom); //Api to get all the rooms ;
 router.put("/addMember/:id", Room.addMember); //Api to add new member in room ;
 router.put("/removeMember/:id", Room.removeMember); //Api to add new member in room ;
-router.delete("/deleteRoom/:id", Room.deleteRoom); //Api to remove member from room ;
+router.delete("/deleteRoom/:id",Room.deleteRoom); //Api to remove member from room ;
 router.put('/updateRoom/:id',fileUpload.single("file"),fileValidate,Room.updateRoom); //Api to Update Room
 
 

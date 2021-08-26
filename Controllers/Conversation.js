@@ -10,6 +10,7 @@ class conversation {
       sender_id: req.body.sender_id,
       reciever_id: req.body.reciever_id,
       group_id: req.body.group_id,
+      isArchived: req.body.group_id,
       messages: req.body.messages,
     });
     conversation
@@ -88,15 +89,17 @@ class conversation {
     if (conversation <= 1) {
       next();
     } else {
+      console.log(conversation);
       ReE(res, "Something Went Wrong", 400);
     }
   }
 
   //API to get Conversations
   async getConversation(req, res, next) {
-    const conversation = await Conversation.find({});
-
+    const conversation = await Conversation.find({ isArchived: "false" });
+    //console.log(conversation[0]._id)
     if (conversation) {
+      // console.log(conversation);
       res.status(201).json(conversation);
     } else {
       return ReE(res, "Something Went Wrong", 400);
@@ -133,6 +136,20 @@ class conversation {
     ReS(res, "Chat Cleared");
   }
 
+  //Api to delete messages
+  async deleteMessages(req, res) {
+    const conversation = await Conversation.findOne({ _id: req.params.id });
+    if (!conversation) {
+      return ReE(res, "No such Conversation Exist", 400);
+    }
+    const arr = conversation.messages;
+    while(arr.length > 0){
+      arr.pop()
+    }
+    console.log(conversation.messages);
+    await conversation.save()
+  }
+
   //Api end for inserting Notifications in mongodb
   async notification(req, res) {
     const conversation = await Conversation.findOne({ _id: req.params.id });
@@ -153,6 +170,54 @@ class conversation {
     console.log(count);
     await conversation.save();
     ReS(res, `You Have ${count} notifications`, 200);
+  }
+
+  //Function to Archive Chats
+  async archivedConversations(req, res) {
+    const conversation = await Conversation.findOne({ _id: req.params.id });
+    if (conversation.isArchived === false) {
+      conversation.isArchived = true;
+      await conversation.save();
+      return ReS(res, "Conversation Archived");
+    } else {
+      conversation.isArchived = false;
+      await conversation.save();
+      return ReS(res, "Conversation UnArchived");
+    }
+  }
+
+  //Function to broadcast a message
+  async broadcast(req, res) {
+    const id1 = req.body._id;
+    const broadcastRecievers = await Conversation.find({
+      _id: id1,
+    }); // getting the array of conversations ids
+
+    if (!broadcastRecievers) {
+      return ReE(res, "Cant broadcast", 400);
+    }
+
+    let broadcastMessage = []; //array containing list of selected Users
+
+    for (let i = 0; i < broadcastRecievers.length; i++) {
+      broadcastMessage.push(broadcastRecievers[i]._id);
+    }
+
+    //const id = req.body.messages._id;
+    const message = req.body.messages.message;
+    let newMessage = {
+      message: message,
+    };
+
+    for (let i = 0; i < broadcastRecievers.length; i++) {
+      broadcastRecievers[i].messages.push(newMessage);
+      await broadcastRecievers[i].save();
+    }
+
+    while (broadcastRecievers.length > 0) {
+      broadcastRecievers.pop();
+    }
+    await ReS(res, "Broadcast Succesful");
   }
 }
 

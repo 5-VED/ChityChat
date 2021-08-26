@@ -17,6 +17,7 @@ class Users {
     const user = new User({
       name: req.body.name,
       image: req.file.path,
+      bio: req.body.bio,
       email: req.body.email,
       password: hashedpassword,
     });
@@ -66,6 +67,7 @@ class Users {
       _id: req.params.id,
       name: req.body.name,
       image: req.file.path,
+      bio: req.body.bio,
       email: req.body.email,
       password: hashedpassword,
     });

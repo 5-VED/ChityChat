@@ -26,3 +26,5 @@ const aclConfiguration = {
     ]);
   },
 };
+
+module.exports = aclConfiguration;
