@@ -57,12 +57,14 @@ router.post("/resetRoomPassword", PasswordReset.resetRoomPassword); // Sends the
 
 /*----------------------------------------------Rooms APIs----------------------------------------------------------------------*/
 
-router.post("/newRoom/:id",fileUpload.single("file"),fileValidate, Room.newRoom); //Api to create chat room;
+router.post("/newRoom",fileUpload.single("file"),fileValidate, Room.newRoom); //Api to create chat room;
 router.get("/getRoom/:id", Room.getRoom); //Api to get all the rooms ;
 router.put("/addMember/:id", Room.addMember); //Api to add new member in room ;
 router.put("/removeMember/:id", Room.removeMember); //Api to add new member in room ;
 router.delete("/deleteRoom/:id",Room.deleteRoom); //Api to remove member from room ;
 router.put('/updateRoom/:id',fileUpload.single("file"),fileValidate,Room.updateRoom); //Api to Update Room
+router.put("/addAdmin/:id", Room.addAdmin); //Api to change Admin new member in room ;
+router.put("/dismissAdmin/:id", Room.dismissAdmin); //Api to change Admin new member in room ;
 
 
 module.exports = router;

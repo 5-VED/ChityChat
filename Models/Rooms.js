@@ -7,10 +7,6 @@ const schema = new mongoose.Schema(
       trim: true,
       required: true,
     },
-    admin:{
-      type:String,
-      required:true
-    },
     image: {
       type: String,
       required: false,
@@ -20,10 +16,24 @@ const schema = new mongoose.Schema(
       required: true,
       default: null,
     },
-    members: {
-      type: Array,
-      required: true,
-    },
+    members: [
+      {
+        _id: {
+          type: String,
+          required: true,
+        },
+        isAdmin: {
+          type: Boolean,
+          required: true,
+          default: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now(),
+          required: true,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

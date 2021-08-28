@@ -2,6 +2,8 @@ const Conversation = require("../Models/Conversation");
 const Room = require("../Models/Rooms");
 const User = require("../Models/Users");
 const { ReS, ReE } = require("../utils/responseService");
+const _ = require("lodash");
+const e = require("express");
 
 class conversation {
   //Method to create new Conversation
@@ -30,35 +32,46 @@ class conversation {
   //Api to push new messages
   async pushMessage(req, res) {
     const conversaton = await Conversation.findOne({ _id: req.params.id });
-    console.log(conversaton);
-    if (conversaton.group_id !== null) {
-      const roomId = conversaton.group_id;
 
-      const room = await Room.findOne({ _id: roomId }, async (error, room) => {
-        if (!room || error) {
-          return ReE(res, "No such Room Exist", 400);
-        }
-      });
+    const id = req.body.messages._id;
+    const message = req.body.messages.message;
+    const arr = conversaton.messages;
 
-      const id = req.body.messages._id;
-      const message = req.body.messages.message;
-      const arr = conversaton.messages;
-
-      const pushFxn = function () {
-        let newMessage = {
-          _id: id,
-          message: message,
-        };
-        arr.push(newMessage);
+    const pushFxn = function () {
+      let newMessage = {
+        _id: id,
+        message: message,
       };
+      arr.push(newMessage);
+    };
 
-      if (room.members.includes(id)) {
+    const roomId = conversaton.group_id;
+    if (roomId !== null) {
+      //console.log(roomId);
+      const room = await Room.findOne({ _id: roomId });
+      if (!room) {
+        return ReE(res, "No such Room Exist", 400);
+      }
+
+      if (room.members.includess(id)) {
         console.log(id);
         pushFxn();
-        conversaton.save();
+        await conversaton.save();
         return ReS(res, "Message Send");
       }
       return ReE(res, "Wrong Group", 400);
+    }
+
+    if (roomId === null) {
+      const sender_id = conversaton.sender_id;
+      const reciever_id = conversaton.reciever_id;
+      if (sender_id === id || reciever_id === id) {
+        pushFxn();
+        await conversaton.save();
+        return ReS(res, "Message Send");
+      } else {
+        return ReE(res, "Cant Send Message", 400);
+      }
     }
   }
 
@@ -142,12 +155,26 @@ class conversation {
     if (!conversation) {
       return ReE(res, "No such Conversation Exist", 400);
     }
-    const arr = conversation.messages;
-    while(arr.length > 0){
-      arr.pop()
+
+    let temp = req.body.messages;
+    //console.log(temp);
+
+    const requiredArr = [];
+    for (let i = 0; i < conversation.messages.length; i++) {
+      let obj = {};
+      obj._id = conversation.messages[i]._id;
+      obj.message = conversation.messages[i].message;
+      requiredArr.push(obj);
     }
-    console.log(conversation.messages);
-    await conversation.save()
+
+    //console.log(requiredArr);
+
+    conversation.messages = _.pullAllWith(requiredArr, temp, _.isEqual);
+
+    //console.log(requiredArr);
+
+    await conversation.save();
+    return ReS(res, "Messages Deleted Succesfully");
   }
 
   //Api end for inserting Notifications in mongodb
@@ -159,17 +186,23 @@ class conversation {
 
     let arr = conversation.messages;
     let recieverId = conversation.reciever_id;
+    let groupId = conversation.group_id;
+
     console.log(recieverId);
-    let count = 0;
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i]._id === recieverId && arr[i].isRead === false) {
-        count = count + 1;
-        arr[i].isRead = true;
+    console.log(groupId);
+
+    if (groupId === null) {
+      let count = 0;
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i]._id === recieverId && arr[i].isRead === false) {
+          count = count + 1;
+          arr[i].isRead = true;
+        }
       }
+      console.log(count);
+      await conversation.save();
+      ReS(res, `You Have ${count} notifications`, 200);
     }
-    console.log(count);
-    await conversation.save();
-    ReS(res, `You Have ${count} notifications`, 200);
   }
 
   //Function to Archive Chats
@@ -189,35 +222,37 @@ class conversation {
   //Function to broadcast a message
   async broadcast(req, res) {
     const id1 = req.body._id;
-    const broadcastRecievers = await Conversation.find({
-      _id: id1,
-    }); // getting the array of conversations ids
+    //   const broadcastRecievers = await Conversation.find({
+    //     _id: id1,
+    //   }); // getting the array of conversations ids
+    //   console.log(broadcastRecievers);
 
-    if (!broadcastRecievers) {
-      return ReE(res, "Cant broadcast", 400);
-    }
+    //   if (!broadcastRecievers) {
+    //     return ReE(res, "Cant broadcast", 400);
+    //   }
 
-    let broadcastMessage = []; //array containing list of selected Users
+    //   let broadcastMessage = []; //array containing list of selected Users
 
-    for (let i = 0; i < broadcastRecievers.length; i++) {
-      broadcastMessage.push(broadcastRecievers[i]._id);
-    }
+    //   for (let i = 0; i < broadcastRecievers.length; i++) {
+    //     broadcastMessage.push(broadcastRecievers[i]._id);
+    //   }
 
-    //const id = req.body.messages._id;
-    const message = req.body.messages.message;
-    let newMessage = {
-      message: message,
-    };
+    //   //const id = req.body.messages._id;
+    //   const message = req.body.messages.message;
+    //   let newMessage = {
+    //     _id: null,
+    //     message: message,
+    //   };
 
-    for (let i = 0; i < broadcastRecievers.length; i++) {
-      broadcastRecievers[i].messages.push(newMessage);
-      await broadcastRecievers[i].save();
-    }
+    //   for (let i = 0; i < broadcastRecievers.length; i++) {
+    //     broadcastRecievers[i].messages.push(newMessage);
+    //     await broadcastRecievers[i].save();
+    //   }
 
-    while (broadcastRecievers.length > 0) {
-      broadcastRecievers.pop();
-    }
-    await ReS(res, "Broadcast Succesful");
+    //   while (broadcastRecievers.length > 0) {
+    //     broadcastRecievers.pop();
+    //   }
+    //   await ReS(res, "Broadcast Succesful");
   }
 }
 

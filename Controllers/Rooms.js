@@ -1,8 +1,7 @@
 const Room = require("../Models/Rooms");
 const { ReE, ReS } = require("../utils/responseService");
 const bcrypt = require("bcrypt");
-const User = require("../Models/Users");
-const acl = require("../config/acl");
+const _ = require("lodash");
 
 class Rooms {
   //Function to create a new room
@@ -10,38 +9,63 @@ class Rooms {
     const salt = await bcrypt.genSalt(10);
     const hashedpassword = await bcrypt.hash(req.body.password, salt);
 
-    const admin = await User.findOne({ _id: req.params.id });
-    if (!admin) {
-      //console.log("Cant find ");
-      return ReE(res, "Can't Create Group", 400);
-    }
-    //console.log(admin._id);
-
     const room = await new Room({
       name: req.body.name,
-      admin: admin._id,
       image: req.file.path,
       password: hashedpassword,
       members: req.body.members,
     });
 
-    // const user = await User.findOne({_id:room._id})
-    // console.log(user.id);
-
-    console.log(room);
+    //    console.log(room);
     try {
-      if (room.members.length === 0 || room.members == " ") {
-        console.log(room);
-        return ReE(res, "Can't create a room Plese try Again ", 400);
-      }
       await room.save();
       ReS(res, "New Group created");
     } catch (error) {
+      console.log(error);
       ReE(res, "Some error Occured", 400);
     }
   }
 
-  //Fuction to delet room from collection
+  /*---------------------------------------Function to add member to the group/room---------------------------------*/
+  async addMember(req, res) {
+    const room = await Room.findOne({ _id: req.params.id });
+    if (!room) {
+      return ReE(res, "No Such Room Exist", 400);
+    }
+
+    const members = room.members;
+    const membersId = req.body.members;
+    const admin = req.body.admin;
+
+    if (_.some(room.members, admin)) {
+      //console.log(_.some(room.members, admin));
+      for (let i = 0; i < membersId.length; i++) {
+        let obj = {};
+        obj["isAdmin"] = membersId[i].isAdmin;
+        obj["_id"] = membersId[i]._id;
+        console.log(!_.find(room.members, membersId[i]));
+
+        if (
+          !_.find(room.members, membersId[i]) &&
+          membersId.isAdmin === false
+        ) {
+          members.push(obj);
+          console.log(obj);
+        } else {
+          //console.log(membersId[0]);
+          return ReE(res, "You are already in the group", 400);
+          //console.log(room.members)
+        }
+      }
+      await room.save();
+      ReS(res, "You Are Added Succesfully");
+    } else {
+      return;
+    }
+  }
+
+  /*---------------------------------------Fuction to delet room from collection---------------------------------*/
+
   async deleteRoom(req, res) {
     const room = await Room.findOne({ _id: req.params.id });
 
@@ -53,42 +77,6 @@ class Rooms {
       },
       room
     ).then(ReS(res, "Room Deleted succesfully"));
-  }
-
-  //Function to add member to the group/room
-  async addMember(req, res) {
-    //console.log("Fdd")
-
-    const { _id } = req.body;
-    User.findOne({ _id }, async (error, user) => {
-      //console.log(_id);
-      if (error || !user) {
-        //console.log(user)
-        return ReS(res, "User with this account does not exist");
-      }
-      let id = user._id.toString(); // initializing an id of the existing user
-      //console.log(typeof(id))
-
-      let newMember = await Room.findOne({ _id: req.params.id });
-
-      if (!newMember) {
-        console.log(newMember);
-        return ReS(res, "sfsfs");
-      }
-
-      let arr = newMember.members; // initializing an array of a collection document
-
-      console.log(arr[arr.length - 1]);
-      console.log(id);
-      if (arr[arr.length - 1] == id) {
-        return ReE(res, "User Already there ", 400);
-      }
-
-      arr = arr.push(id); //Inserting a new user id in the collection
-
-      await newMember.save();
-      ReS(res, "Member Added Succesfully");
-    });
   }
 
   /*---------------------------------------Function to update group/room-------------------------------------------*/
@@ -122,27 +110,72 @@ class Rooms {
     if (!getRoom) {
       ReE(res, "Group does not exist", 400);
     } else {
-      //console.log(getRoom); //[]
       ReS(res, getRoom);
     }
   }
 
-  //Function to remove member from group
+  /*---------------------------------------Function to remove member to the group/room---------------------------------*/
   async removeMember(req, res) {
-    const member = await Room.findOneAndUpdate(
-      {
-        _id: req.params.id,
-      },
-      {
-        $pull: { members: req.body.members },
-      }
-    );
+    const room = await Room.findOne({ _id: req.params.id });
 
-    if (!member) {
-      console.log(member);
-      return ReE(res, "No such Chat Room Exist", 400);
+    const members = room.members;
+    const id = req.body._id;
+
+    let temp = [];
+    for (let i = 0; i < members.length; i++) {
+
+
     }
-    await ReS(res, "User Removed Succesfully", 400);
+    console.log(id);
+    if (temp.includes(id)) {
+      console.log(temp.includes(id));
+     // if()
+    }
+  }
+
+  /*---------------------------------------Function to add admin to the group/room--------------------------------------*/
+  async addAdmin(req, res) {
+    const room = await Room.findOne({ _id: req.params.id });
+
+    if (!room) {
+      return ReE(res, "No Such Group Exist", 400);
+    }
+    const members = room.members;
+    const id = req.body._id;
+
+    for (let i = 0; i < members.length; i++) {
+      if (members[i]._id === id) {
+        if (members[i].isAdmin === false) {
+          members[i].isAdmin = true;
+        }
+      }
+    }
+    await room.save();
+    returnReS(res, "You are Now Admin");
+  }
+
+  /*---------------------------------------Function to dismisss Admin from the group/room---------------------------------*/
+
+  async dismissAdmin(req, res) {
+    const room = await Room.findOne({ _id: req.params.id });
+
+    if (!room) {
+      return ReE(res, "No Such Group Exist", 400);
+    }
+
+    const members = room.members;
+    const id = req.body._id;
+
+    for (let i = 0; i < members.length; i++) {
+      if (members[i]._id === id) {
+        if (members[i].isAdmin === true) {
+          members[i].isAdmin = false;
+        }
+      }
+    }
+    await room.save();
+    return ReS(res, "You are no More Admin");
   }
 }
+
 module.exports = new Rooms();
