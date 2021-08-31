@@ -14,6 +14,7 @@ class conversation {
       group_id: req.body.group_id,
       isArchived: req.body.group_id,
       messages: req.body.messages,
+      isDelete:req.body.isDelete
     });
     conversation
       .save()
@@ -222,37 +223,37 @@ class conversation {
   //Function to broadcast a message
   async broadcast(req, res) {
     const id1 = req.body._id;
-    //   const broadcastRecievers = await Conversation.find({
-    //     _id: id1,
-    //   }); // getting the array of conversations ids
-    //   console.log(broadcastRecievers);
+      const broadcastRecievers = await Conversation.find({
+        _id: id1,
+      }); // getting the array of conversations ids
+      console.log(broadcastRecievers);
 
-    //   if (!broadcastRecievers) {
-    //     return ReE(res, "Cant broadcast", 400);
-    //   }
+      if (!broadcastRecievers) {
+        return ReE(res, "Cant broadcast", 400);
+      }
 
-    //   let broadcastMessage = []; //array containing list of selected Users
+      let broadcastMessage = []; //array containing list of selected Users
 
-    //   for (let i = 0; i < broadcastRecievers.length; i++) {
-    //     broadcastMessage.push(broadcastRecievers[i]._id);
-    //   }
+      for (let i = 0; i < broadcastRecievers.length; i++) {
+        broadcastMessage.push(broadcastRecievers[i]._id);
+      }
 
-    //   //const id = req.body.messages._id;
-    //   const message = req.body.messages.message;
-    //   let newMessage = {
-    //     _id: null,
-    //     message: message,
-    //   };
+      const id = req.body.messages._id;
+      const message = req.body.messages.message;
+      let newMessage = {
+        _id: id,
+        message: message,
+      };
 
-    //   for (let i = 0; i < broadcastRecievers.length; i++) {
-    //     broadcastRecievers[i].messages.push(newMessage);
-    //     await broadcastRecievers[i].save();
-    //   }
+      for (let i = 0; i < broadcastRecievers.length; i++) {
+        broadcastRecievers[i].messages.push(newMessage);
+        await broadcastRecievers[i].save();
+      }
 
-    //   while (broadcastRecievers.length > 0) {
-    //     broadcastRecievers.pop();
-    //   }
-    //   await ReS(res, "Broadcast Succesful");
+      while (broadcastRecievers.length > 0) {
+        broadcastRecievers.pop();
+      }
+      await ReS(res, "Broadcast Succesful");
   }
 }
 

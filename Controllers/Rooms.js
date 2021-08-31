@@ -26,7 +26,7 @@ class Rooms {
     }
   }
 
-  /*---------------------------------------Function to add member to the group/room---------------------------------*/
+  /*--------------------------------------Function to add member to the group/room---------------------------------*/
   async addMember(req, res) {
     const room = await Room.findOne({ _id: req.params.id });
     if (!room) {
@@ -35,26 +35,27 @@ class Rooms {
 
     const members = room.members;
     const membersId = req.body.members;
+    //console.log(membersId);
     const admin = req.body.admin;
 
     if (_.some(room.members, admin)) {
-      //console.log(_.some(room.members, admin));
+      // console.log(_.some(room.members, admin));
       for (let i = 0; i < membersId.length; i++) {
         let obj = {};
         obj["isAdmin"] = membersId[i].isAdmin;
         obj["_id"] = membersId[i]._id;
-        console.log(!_.find(room.members, membersId[i]));
-
+        // console.log(!_.find(room.members, membersId[i]));
+        // console.log(room.members,membersId[i])
         if (
           !_.find(room.members, membersId[i]) &&
-          membersId.isAdmin === false
+          membersId[i].isAdmin === false
         ) {
           members.push(obj);
           console.log(obj);
         } else {
-          //console.log(membersId[0]);
+          console.log(obj);
+          // console.log(membersId[0]);
           return ReE(res, "You are already in the group", 400);
-          //console.log(room.members)
         }
       }
       await room.save();
@@ -69,17 +70,21 @@ class Rooms {
   async deleteRoom(req, res) {
     const room = await Room.findOne({ _id: req.params.id });
 
+    console.log(room);
+    console.log(room.isDelete);
     if (!room) return ReE(res, "Record doesnt exist", 400);
-
-    Room.deleteOne(
-      {
-        _id: req.params.id,
-      },
-      room
-    ).then(ReS(res, "Room Deleted succesfully"));
+    try {
+      if (room.isDelete === false) {
+        room.isDelete = true;
+        await room.save();
+        return ReS(res, "Room Deleted Succesfully");
+      }
+    } catch (err) {
+      return ReS(res, err, 400);
+    }
   }
 
-  /*---------------------------------------Function to update group/room-------------------------------------------*/
+  /*---------------------------------------Function to update group/room--------------------------------------------*/
   async updateRoom(req, res) {
     const salt = await bcrypt.genSalt(10);
     const hashedpassword = await bcrypt.hash(req.body.password, salt);
@@ -89,6 +94,7 @@ class Rooms {
       image: req.file.path,
       password: hashedpassword,
       members: req.body.members,
+      isDelete: req.body.isDelete,
     });
     console.log(room);
     Room.updateOne(
@@ -117,23 +123,30 @@ class Rooms {
   /*---------------------------------------Function to remove member to the group/room---------------------------------*/
   async removeMember(req, res) {
     const room = await Room.findOne({ _id: req.params.id });
+    if (!room) return ReE(res, "Record doesnt exist", 400);
 
-    const members = room.members;
-    const id = req.body._id;
+    let members = room.members;
+    const id = req.body.removeMembers._id;
+    const adminFlag = req.body.removeMembers.isAdmin;
+
+    let obj = {};
+    obj["isAdmin"] = adminFlag;
+    obj["_id"] = id;
 
     let temp = [];
     for (let i = 0; i < members.length; i++) {
-
-
+      let obj = {};
+      obj["isAdmin"] = members[i].isAdmin;
+      obj["_id"] = members[i]._id;
+      temp.push(obj);
     }
-    console.log(id);
-    if (temp.includes(id)) {
-      console.log(temp.includes(id));
-     // if()
-    }
+
+    let index = _.indexOf(temp, _.find(temp, obj), 0);
+    members.splice(index, 1);
+    await room.save();
+    return ReS(res, "Member Removed Succesfully");
   }
-
-  /*---------------------------------------Function to add admin to the group/room--------------------------------------*/
+  /*---------------------------------------Function to add admin to the group/room---------------------------------------*/
   async addAdmin(req, res) {
     const room = await Room.findOne({ _id: req.params.id });
 
@@ -151,7 +164,7 @@ class Rooms {
       }
     }
     await room.save();
-    returnReS(res, "You are Now Admin");
+    return ReS(res, "You are Now Admin");
   }
 
   /*---------------------------------------Function to dismisss Admin from the group/room---------------------------------*/
